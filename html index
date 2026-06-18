@@ -1,0 +1,194 @@
+import React from "react";
+import { cls, initials } from "@/lib/utils-nx";
+import { useApp } from "@/store/AppContext";
+import type { UserId } from "@/store/types";
+
+export function NxCard({
+  children,
+  className,
+  hover = true,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { hover?: boolean }) {
+  return (
+    <div
+      className={cls(
+        "bg-white rounded-xl border border-nx-line shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]",
+        hover && "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(108,71,255,0.12)]",
+        className
+      )}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function NxBadge({
+  children,
+  tone = "neutral",
+  className,
+}: {
+  children: React.ReactNode;
+  tone?: "violet" | "cyan" | "green" | "amber" | "red" | "neutral";
+  className?: string;
+}) {
+  const toneMap: Record<string, string> = {
+    violet: "bg-nx-violetLight text-nx-violet",
+    cyan: "bg-nx-cyanLight text-cyan-700",
+    green: "bg-nx-greenLight text-emerald-700",
+    amber: "bg-nx-amberLight text-amber-700",
+    red: "bg-nx-redLight text-red-700",
+    neutral: "bg-gray-100 text-gray-600",
+  };
+  return (
+    <span
+      className={cls(
+        "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap",
+        toneMap[tone],
+        className
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function NxAvatar({
+  user,
+  size = 36,
+  ring = false,
+}: {
+  user: UserId;
+  size?: number;
+  ring?: boolean;
+}) {
+  const { data } = useApp();
+  const name = user === "tahsin" ? data.settings.tahsinName : data.settings.farhanName;
+  const color = user === "tahsin" ? data.settings.tahsinAvatarColor : data.settings.farhanAvatarColor;
+  return (
+    <div
+      className={cls(
+        "rounded-full flex items-center justify-center text-white font-display font-bold flex-shrink-0",
+        ring && "ring-2 ring-offset-2"
+      )}
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.42,
+        background: `linear-gradient(135deg, ${color}, ${color}cc)`,
+        ...(ring ? ({ "--tw-ring-color": color } as React.CSSProperties) : {}),
+      }}
+    >
+      {initials(name)}
+    </div>
+  );
+}
+
+export function NxButton({
+  children,
+  variant = "primary",
+  size = "md",
+  className,
+  icon,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "outline" | "ghost" | "danger" | "cyan";
+  size?: "sm" | "md" | "lg";
+  icon?: React.ReactNode;
+}) {
+  const variants: Record<string, string> = {
+    primary:
+      "bg-nx-violet text-white hover:bg-violet-700 shadow-sm hover:shadow-[0_8px_24px_rgba(108,71,255,0.25)]",
+    outline:
+      "bg-white text-nx-violet border border-nx-violet/30 hover:bg-nx-violetLight",
+    ghost: "bg-transparent text-gray-600 hover:bg-nx-bg",
+    danger: "bg-white text-red-600 border border-red-200 hover:bg-red-50",
+    cyan: "bg-nx-cyan text-white hover:bg-cyan-600 shadow-sm",
+  };
+  const sizes: Record<string, string> = {
+    sm: "px-3 py-1.5 text-sm rounded-lg gap-1.5",
+    md: "px-4 py-2.5 text-sm rounded-lg gap-2",
+    lg: "px-5 py-3 text-base rounded-xl gap-2",
+  };
+  return (
+    <button
+      className={cls(
+        "inline-flex items-center justify-center font-medium transition-transform duration-150 active:scale-[0.98] hover:scale-[1.02] disabled:opacity-50 disabled:pointer-events-none disabled:hover:scale-100",
+        variants[variant],
+        sizes[size],
+        className
+      )}
+      {...rest}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+}
+
+export function NxSectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-3 text-[11px] font-medium tracking-[0.08em] uppercase text-nx-muted mt-5 mb-1.5">
+      {children}
+    </div>
+  );
+}
+
+export function NxEmptyState({
+  icon,
+  title,
+  description,
+  actionLabel,
+  onAction,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="w-16 h-16 bg-nx-violetLight rounded-2xl flex items-center justify-center mb-4 text-nx-violet">
+        {icon}
+      </div>
+      <h3 className="text-gray-800 font-display font-semibold text-lg mb-1">{title}</h3>
+      <p className="text-gray-400 text-sm mb-6 max-w-xs">{description}</p>
+      {actionLabel && onAction && (
+        <NxButton onClick={onAction}>{actionLabel}</NxButton>
+      )}
+    </div>
+  );
+}
+
+export function NxToggle({
+  checked,
+  onChange,
+  labelOn = "ON",
+  labelOff = "OFF",
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  labelOn?: string;
+  labelOff?: string;
+}) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      className={cls(
+        "relative inline-flex items-center h-8 w-[68px] rounded-full transition-colors duration-200 px-1",
+        checked ? "bg-emerald-500 justify-end" : "bg-gray-200 justify-start"
+      )}
+    >
+      <span
+        className={cls(
+          "text-[10px] font-semibold absolute",
+          checked ? "left-2 text-white" : "right-2 text-gray-500"
+        )}
+      >
+        {checked ? labelOn : labelOff}
+      </span>
+      <span className="w-6 h-6 rounded-full bg-white shadow transition-transform duration-200" />
+    </button>
+  );
+}
